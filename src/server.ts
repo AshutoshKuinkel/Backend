@@ -1,18 +1,14 @@
 import express, {Request, Response} from 'express';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import mongoose, { connect } from 'mongoose';
+import { ConnectDatabase } from './config/db.config';
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
+const DB_URI = process.env.DB_URI ?? '';
 
-mongoose.connect(process.env.DB_URI as string, {})
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-  });
+ConnectDatabase(DB_URI);
 
 //using middlewares
 app.use(express.json());

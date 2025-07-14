@@ -29,7 +29,6 @@ app.all('/{*all}',(req: Request, res: Response) => {
   const message = `Cannot ${req.method} @ ${req.originalUrl}`;
   throw new CustomError(message, 404);
 });
-//create a schema and model for data depending on what the project is.
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

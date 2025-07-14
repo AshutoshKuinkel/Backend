@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: [true, 'Phone number is required'],
+    max: [15, 'Phone number must be at most 15 characters long'],
   },
   role: {
     type: String,
@@ -38,6 +39,6 @@ const userSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-const User = model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;

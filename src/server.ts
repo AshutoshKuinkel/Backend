@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import dotenv from 'dotenv';
 import mongoose, { connect } from 'mongoose';
 import { ConnectDatabase } from './config/db.config';
+import { errorHandler } from './middlewares/error-handler.middleware';
 
 dotenv.config();
 const app = express();
@@ -28,3 +29,7 @@ app.get('/',(req:Request, res:Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+//using error handler middleware
+app.use(errorHandler)

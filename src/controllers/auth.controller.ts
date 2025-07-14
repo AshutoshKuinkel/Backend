@@ -16,10 +16,80 @@ export const register = async(req:Request,res:Response,next:NextFunction)=>{
   catch(err){
     next(err);
   }
-
 }
 
 //login
 
+export const login = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const {email,password} = req.body;
+    const user = await User.findOne({email,password});
+    if(!user){
+      return res.status(401).json({
+        message: 'Invalid email or password',
+        status: 'fail',
+        success: false,
+        data: null
+      });
+    }
+    res.status(200).json({
+      message: 'Login successful',
+      status: 'success',
+      success: true,
+      data: user
+    });
+  } catch(err){
+    next(err);
+  }
+}
+
 //forgot password
+
+export const forgotPassword = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const {email} = req.body
+    const user = await User.findOne({email});
+    if(!user){
+      return res.status(404).json({
+        message: 'User not found',
+        status: 'fail',
+        success: false,
+        data: null
+      });
+    }
+    res.status(200).json({
+      message: 'Password reset link sent to your email',
+      status: 'success',
+      success: true,
+      data: null
+    });
+  } catch(err){
+    next(err)
+  }
+}
 //change password
+
+export const changePassword = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const {email,oldPassword,newPassword} = req.body;
+    const user = await User.findOne({email, password: oldPassword});
+    if(!user){
+      return res.status(401).json({
+        message: 'Invalid email or old password',
+        status: 'fail',
+        success: false,
+        data: null
+      });
+    }
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({
+      message: 'Password changed successfully',
+      status: 'success',
+      success: true,
+      data: null
+    });
+  } catch(err){
+    next(err);
+  }
+}

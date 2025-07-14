@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import mongoose, { connect } from 'mongoose';
 import { ConnectDatabase } from './config/db.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
+import CustomError from './middlewares/error-handler.middleware';
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,10 @@ app.get('/',(req:Request, res:Response) => {
 
 //using routes
 
+app.all('/{*all}',(req: Request, res: Response) => {
+  const message = `Cannot ${req.method} @ ${req.originalUrl}`;
+  throw new CustomError(message, 404);
+});
 //create a schema and model for data depending on what the project is.
 
 app.listen(PORT, () => {

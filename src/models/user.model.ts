@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required'],
     max: [15, 'Phone number must be at most 15 characters long'],
   },
   role: {
@@ -35,7 +34,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters long'],
+    minlength: [5, 'Password must be at least 5 characters long'],
   },
 }, { timestamps: true });
 

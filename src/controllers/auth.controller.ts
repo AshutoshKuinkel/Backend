@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/user.model';
-//register 
+import CustomError from '../middlewares/error-handler.middleware';
 
+
+//register 
 export const register = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {firstName,lastName,email,password,phone} = req.body;
@@ -22,16 +24,27 @@ export const register = async(req:Request,res:Response,next:NextFunction)=>{
 
 export const login = async(req:Request,res:Response,next:NextFunction)=>{
   try{
+    //1. email password validation
     const {email,password} = req.body;
-    const user = await User.findOne({email,password});
-    if(!user){
-      return res.status(401).json({
-        message: 'Invalid email or password',
-        status: 'fail',
-        success: false,
-        data: null
-      });
+
+    if(!email || !password){
+      throw new CustomError('Email and password are required', 400);
     }
+
+    //2find user by email
+    const user = await User.findOne({email});
+    if(!user){
+      throw new CustomError('Invalid Credentials', 400);
+    }
+    
+    //3. check if password matches (user.password === pass)
+    const isPassMatch = user.password === password;
+
+    if (!isPassMatch){
+      throw new CustomError('Invalid Credentials', 400);
+    }
+
+    //4. send response
     res.status(200).json({
       message: 'Login successful',
       status: 'success',

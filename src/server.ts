@@ -5,6 +5,9 @@ import { ConnectDatabase } from './config/db.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import CustomError from './middlewares/error-handler.middleware';
 
+//importing routes
+import authRoutes from './routes/auth.routes';
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
@@ -24,6 +27,8 @@ app.get('/',(req:Request, res:Response) => {
 });
 
 //using routes
+app.use('/api/auth', authRoutes);
+
 
 app.all('/{*all}',(req: Request, res: Response) => {
   const message = `Cannot ${req.method} @ ${req.originalUrl}`;

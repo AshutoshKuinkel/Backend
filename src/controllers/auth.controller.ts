@@ -31,7 +31,7 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
       throw new CustomError('Email and password are required', 400);
     }
 
-    //2find user by email
+    //2. find user by email
     const user = await User.findOne({email});
     if(!user){
       throw new CustomError('Invalid Credentials', 400);
@@ -82,25 +82,55 @@ export const forgotPassword = async(req:Request,res:Response,next:NextFunction)=
 }
 //change password
 
+// export const changePassword = async(req:Request,res:Response,next:NextFunction)=>{
+//   try{
+//     const {email,oldPassword,newPassword} = req.body;
+//     const user = await User.findOne({email, password: oldPassword});
+//     if(!user){
+//       return res.status(401).json({
+//         message: 'Invalid email or old password',
+//         status: 'fail',
+//         success: false,
+//         data: null
+//       });
+//     }
+//     user.password = newPassword;
+//     await user.save();
+//     res.status(200).json({
+//       message: 'Password changed successfully',
+//       status: 'success',
+//       success: true,
+//       data: null
+//     });
+//   } catch(err){
+//     next(err);
+//   }
+// }
+
 export const changePassword = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {email,oldPassword,newPassword} = req.body;
-    const user = await User.findOne({email, password: oldPassword});
-    if(!user){
-      return res.status(401).json({
-        message: 'Invalid email or old password',
-        status: 'fail',
-        success: false,
-        data: null
-      });
+    if(!newPassword || !oldPassword || !email){
+      throw new CustomError("Invalid Credentials",400)
+      }
+    const user = await User.findOne({email});
+    if (!user){
+      throw new CustomError('Something went wrong',400)
     }
-    user.password = newPassword;
-    await user.save();
-    res.status(200).json({
-      message: 'Password changed successfully',
+    const isPassMatched = user.password === oldPassword;
+   
+    if (!isPassMatched){
+      throw new CustomError(`Password does not match`,400)
+    }
+
+    user.password = newPassword
+
+    await user.save()
+
+    res.status(201).json({
+      message: 'Password updated successfully',
       status: 'success',
       success: true,
-      data: null
     });
   } catch(err){
     next(err);

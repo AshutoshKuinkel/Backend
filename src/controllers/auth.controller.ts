@@ -80,8 +80,9 @@ export const forgotPassword = async(req:Request,res:Response,next:NextFunction)=
     next(err)
   }
 }
-//change password
 
+//change password 1
+// This is another version of the changePassword controller.
 // export const changePassword = async(req:Request,res:Response,next:NextFunction)=>{
 //   try{
 //     const {email,oldPassword,newPassword} = req.body;
@@ -107,6 +108,7 @@ export const forgotPassword = async(req:Request,res:Response,next:NextFunction)=
 //   }
 // }
 
+//change password 2
 export const changePassword = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {email,oldPassword,newPassword} = req.body;

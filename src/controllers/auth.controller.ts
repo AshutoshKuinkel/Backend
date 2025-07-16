@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/user.model';
 import CustomError from '../middlewares/error-handler.middleware';
 import { hashPassword,compareHash } from '../utils/bcrypt.utils';
+import { compare } from 'bcryptjs';
 
 
 //register 
@@ -47,7 +48,7 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
     }
 
     //2. find user by email
-    const user = await User.findOne({email});
+    const user:any = await User.findOne({email}).select("+password");
     if(!user){
       throw new CustomError('Invalid Credentials', 400);
     }
@@ -59,12 +60,16 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
       throw new CustomError('Invalid Credentials', 400);
     }
 
+    //generate auth token
+
+    const {password:pass,...loggedInUser} = user._doc
+
     //4. send response
     res.status(200).json({
       message: 'Login successful',
       status: 'success',
       success: true,
-      data: user
+      data: loggedInUser
     });
   } catch(err){
     next(err);
@@ -130,17 +135,17 @@ export const changePassword = async(req:Request,res:Response,next:NextFunction)=
     if(!newPassword || !oldPassword || !email){
       throw new CustomError("Invalid Credentials",400)
       }
-    const user = await User.findOne({email});
+    const user = await User.findOne({email}).select("+password");
     if (!user){
       throw new CustomError('Something went wrong',400)
     }
-    const isPassMatched = user.password === oldPassword;
+    const isPassMatched = compareHash(oldPassword,user.password)
    
     if (!isPassMatched){
       throw new CustomError(`Password does not match`,400)
     }
 
-    user.password = newPassword
+    user.password = await hashPassword(newPassword)
 
     await user.save()
 

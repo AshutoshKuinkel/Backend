@@ -1,18 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/user.model';
 import CustomError from '../middlewares/error-handler.middleware';
+import { hashPassword,compareHash } from '../utils/bcrypt.utils';
 
 
 //register 
 export const register = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {firstName,lastName,email,password,phone} = req.body;
-    const user = await User.create({firstName,lastName,email,password,phone});
+
+    if(!password){
+      throw new CustomError(`password is required`,400)
+    }
+
+    const user:any = await User.create({firstName,lastName,email,password,phone});
+
+    const hashedPassword = await hashPassword(password)
+
+    user.password = hashedPassword
+
+    await user.save()
+
+    const {password:pass,...newUser} = user._doc
+
     res.status(201).json({
       message: 'User registered successfully',
       status: 'success',
       success: true,
-      data: user
+      data: newUser
     });
   }
   catch(err){
@@ -38,7 +53,7 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
     }
     
     //3. check if password matches (user.password === pass)
-    const isPassMatch = user.password === password;
+    const isPassMatch = await compareHash(password,user.password)
 
     if (!isPassMatch){
       throw new CustomError('Invalid Credentials', 400);

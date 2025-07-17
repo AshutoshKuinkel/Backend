@@ -15,29 +15,44 @@ export const getAll = async(req:Request,res:Response,next:NextFunction)=>{
     }
     )
   }catch(err){
-    err
+    next(err)
   }
 }
 //delete user
-//work on this tomorrow
 
-//update profile
+export const deleteUser = async(req:Request,res:Response,next:NextFunction)=>{
+try{
+  const {id} = req.params
+  const users = await User.findByIdAndDelete(id)
+  
+  res.status(200).json({
+      message: `User deleted`,
+      success: true,
+      status: "success",
+      data:users
+    }
+    )
+} catch (err){
+  next(err)
+}
+}
 
 //get user by id
 
-export const getUserById = async(req:Request,res:Response,next:NextFunction)=>{
-  try{
-
-    const users = await User.findById({})
-
-    res.status(200).json({
+export const getById = async(req:Request,res:Response,next:NextFunction)=>{
+try{
+  const {id} = req.params
+  const users = await User.findById(id)
+  
+  res.status(200).json({
       message: `User fetched`,
       success: true,
       status: "success",
       data:users
     }
     )
-  }catch(err){
-    err
-  }
+} catch (err){
+  next(err)
 }
+}
+

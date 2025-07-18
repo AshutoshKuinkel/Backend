@@ -1,5 +1,6 @@
 import { Request,Response,NextFunction } from "express"
 import User from "../models/user.model"
+import CustomError from "../middlewares/error-handler.middleware"
 
 // get all users
 export const getAll = async(req:Request,res:Response,next:NextFunction)=>{
@@ -24,6 +25,10 @@ export const deleteUser = async(req:Request,res:Response,next:NextFunction)=>{
 try{
   const {id} = req.params
   const users = await User.findByIdAndDelete(id)
+
+  if(!User){
+    throw new CustomError('User not found',404)
+  }
   
   res.status(200).json({
       message: `User deleted`,
@@ -43,6 +48,10 @@ export const getById = async(req:Request,res:Response,next:NextFunction)=>{
 try{
   const {id} = req.params
   const users = await User.findById(id)
+
+  if(!User){
+    throw new CustomError('User not found',404)
+  }
   
   res.status(200).json({
       message: `User fetched`,

@@ -42,5 +42,5 @@ app.listen(PORT, () => {
 });
 
 
-//using error handler middleware
+//using error handler middleware 
 app.use(errorHandler)

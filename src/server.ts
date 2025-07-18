@@ -9,6 +9,7 @@ import CustomError from './middlewares/error-handler.middleware';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes'
 import brandRoutes from './routes/brand.routes'
+import categoryRoutes from './routes/category.routes'
 
 dotenv.config();
 const app = express();
@@ -32,6 +33,7 @@ app.get('/',(req:Request, res:Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/brand', brandRoutes);
+app.use('/api/category', categoryRoutes);
 
 
 app.all('/{*all}',(req: Request, res: Response) => {

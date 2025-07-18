@@ -75,9 +75,5 @@ export const getBrandById = async(req:Request,res:Response,next:NextFunction)=>{
     next(err)
   }
 
-<<<<<<< HEAD
 }
-//
-=======
-}
->>>>>>> master
+

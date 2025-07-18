@@ -77,3 +77,24 @@ export const getBrandById = async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 
+//update brand
+
+export const updateBrand = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const id = req.params.id
+    const {name,description} = req.body
+    
+    const brand = await Brand.findByIdAndUpdate(id,{name,description},{new:true,reValidate:true}) 
+
+    res.status(200).json({
+      message: "Category by ID",
+      status: "Success",
+      success: true,
+      data: brand,
+    })
+
+  }catch(err){
+    next(err)
+  }
+
+}

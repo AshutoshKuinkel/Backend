@@ -10,5 +10,8 @@ router.delete('/remove/:id', removeBrand)
 router.get('/:id',getBrandById)
 
 
+<<<<<<< HEAD
 //exporting the router
+=======
+>>>>>>> master
 export default router

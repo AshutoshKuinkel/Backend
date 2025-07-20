@@ -65,4 +65,24 @@ try{
 }
 }
 
+//register user
+
+
+export const registerUser = async(req:Request,res:Response,next:NextFunction)=>{
+try{
+  const {firstName,lastName,email,password,phone,role} = req.body
+  const user = await User.create({firstName,lastName,email,password,phone,role})
+  
+  res.status(200).json({
+      message: `User fetched`,
+      success: true,
+      status: "success",
+      data:user
+    }
+    )
+} catch (err){
+  next(err)
+}
+}
+
 //test comment for git

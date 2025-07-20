@@ -12,7 +12,7 @@ export const registerBrand = async(req:Request,res:Response,next:NextFunction)=>
       throw new CustomError("brand name is required !", 400);
     }
     
-    const brand = await Brand.create(name,description)
+    const brand = await Brand.create({name,description})
     res.status(201).json({
       message: "Brand created successfully",
       status: "success",

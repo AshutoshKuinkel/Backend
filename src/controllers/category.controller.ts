@@ -12,7 +12,7 @@ export const registerCategory = async(req:Request,res:Response,next:NextFunction
       throw new CustomError("Category name is required !", 400);
     }
     
-    const category = await Category.create(name,description)
+    const category = await Category.create({name,description})
     res.status(201).json({
       message: "Category created successfully",
       status: "success",

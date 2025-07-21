@@ -136,3 +136,7 @@ export const removeProduct = async(req:Request,res:Response,next:NextFunction)=>
     next(err)
   }
 }
+
+//get product by category
+
+//get product by brand

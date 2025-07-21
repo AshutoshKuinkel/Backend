@@ -3,6 +3,10 @@ import User from '../models/user.model';
 import CustomError from '../middlewares/error-handler.middleware';
 import { hashPassword,compareHash } from '../utils/bcrypt.utils';
 import { compare } from 'bcryptjs';
+import { generateToken } from '../utils/jwt.utils';
+import { IJWTPayload } from '../types/global.types';
+import dotenv from "dotenv"
+dotenv.config()
 
 
 //register 
@@ -60,16 +64,30 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
       throw new CustomError('Invalid Credentials', 400);
     }
 
-    //generate auth token
+    const payload:IJWTPayload = {
+      _id:user._id,
+      role:user.role,
+      email:user.email,
+      firstName:user.firstName,
+      lastName:user.lastName
+    }
+    //generate jwt token
+    const access_token = generateToken(payload)
 
     const {password:pass,...loggedInUser} = user._doc
 
-    //4. send response
-    res.status(200).json({
+    res.cookie('access_token',access_token,{
+      secure:process.env.NODE_ENV === 'development' ? false:true,
+      httpOnly:true,
+      maxAge: Number(process.env.COOKIE_EXPIRY) * 24 * 60 * 60 * 60 * 1000
+    }).status(200).json({
       message: 'Login successful',
       status: 'success',
       success: true,
-      data: loggedInUser
+      data: {
+        data:loggedInUser,
+        access_token
+      }
     });
   } catch(err){
     next(err);

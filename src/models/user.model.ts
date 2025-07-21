@@ -1,3 +1,4 @@
+import { Role } from './../types/enum.types';
 // add first name,last name,email,phone,role,password to user model
 import express, { Request, Response } from 'express';
 import mongoose, { Schema, model } from 'mongoose';
@@ -28,8 +29,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['USER', 'ADMIN'],
-    default: 'USER',
+    enum:Object.values(Role),
+    default:Role.USER,
   },
   password: {
     type: String,

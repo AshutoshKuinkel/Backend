@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import dotenv from 'dotenv';
 import mongoose, { connect } from 'mongoose';
 import { ConnectDatabase } from './config/db.config';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import CustomError from './middlewares/error-handler.middleware';
 
@@ -22,6 +23,7 @@ ConnectDatabase(DB_URI);
 //using middlewares
 app.use(express.json());
 app.use(express.urlencoded({limit: '50mb', extended: true}));
+app.use(cookieParser())
 
 app.get('/',(req:Request, res:Response) => {
 

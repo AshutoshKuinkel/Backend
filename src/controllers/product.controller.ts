@@ -3,12 +3,14 @@ import CustomError from "../middlewares/error-handler.middleware";
 import { Product } from "../models/product.model";
 import { Brand } from "../models/brand.model";
 import { Category } from "../models/category.model";
+import mongoose from "mongoose";
 
 //* Product registration
 
 export const registerProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const {name,brand,category,createdBy,isFeatured,stock,price,description,size} = req.body;
+    const {name,brand,category,isFeatured,stock,price,description,size} = req.body;
+    const createdBy = req.user._id
 
     if (!name||!brand||!category||!price) {
       throw new CustomError("Please fill out at least the name,brand,category and price!", 400);
@@ -24,9 +26,9 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
     if(!category){
       throw new CustomError(`Category is required`,400)
     }
-    if(!createdBy){
-      throw new CustomError(`createdBy is required`,400)
-    }
+    // if(!createdBy){
+    //   throw new CustomError(`createdBy is required`,400)
+    // }
     const product = new Product({
       name,isFeatured,stock,price,description,size
     })
@@ -44,7 +46,7 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
     }
     product.brand = productBrand._id
     product.category = productCategory._id
-    product.createdBy = createdBy;
+    product.createdBy = new mongoose.Types.ObjectId(createdBy.toString());
 
     await product.save()
 

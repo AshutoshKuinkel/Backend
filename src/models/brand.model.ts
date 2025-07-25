@@ -10,7 +10,16 @@ name: {
     unique: true,
     maxLength: 50,
   },
-
+logo:{
+  path:{
+    type:String,
+    required:true
+  },
+  public_id:{
+    type:String,
+    required:true
+  }
+},
 description:{
     type: String,
   },

@@ -1,3 +1,4 @@
+import { uploadFile } from './../utils/cloudinary-service.utils';
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../middlewares/error-handler.middleware";
 import { Product } from "../models/product.model";
@@ -5,15 +6,28 @@ import { Brand } from "../models/brand.model";
 import { Category } from "../models/category.model";
 import mongoose from "mongoose";
 
+const folder_name = '/products'
 //* Product registration
 
 export const registerProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {name,brand,category,isFeatured,stock,price,description,size} = req.body;
     const createdBy = req.user._id
+    
+      const files = req.files as {
+      coverImage?: Express.Multer.File[];
+      images?: Express.Multer.File[];
+    };
+
+    const coverImage = files?.coverImage?.[0];
+    const images = files?.images || [];   
 
     if (!name||!brand||!category||!price) {
       throw new CustomError("Please fill out at least the name,brand,category and price!", 400);
+    }
+
+    if (!coverImage) {
+      throw new CustomError("Cover image is required", 400);
     }
     
     //This is perfectly fine aswell:
@@ -32,6 +46,21 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
     const product = new Product({
       name,isFeatured,stock,price,description,size
     })
+
+    
+    const { path: coverPath, public_id: coverPublicId } = await uploadFile(
+      coverImage.path,
+      "/uploads"
+    );
+    product.coverImage = coverPath;
+
+    
+    if (images.length > 0) {
+      const uploadedImages = await Promise.all(
+        images.map((img) => uploadFile(img.path, "/uploads"))
+      );
+      product.images = uploadedImages.map((img) => img.path);
+    }
 
     const productBrand = await Brand.findById(brand)
 

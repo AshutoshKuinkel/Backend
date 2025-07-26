@@ -6,7 +6,7 @@ export const uploadFile = async(path:string,dir='/') =>{
   try{
     const {public_id,secure_url} = await cloudinary.uploader.upload(path,{
       unique_filename:true,
-      folder:'MERN_CLASS_PROJECT'+ dir,
+      folder:'MERN_CLASS_PROJECT' + dir,
       // allowed_formats:[]
     })
 
@@ -19,7 +19,8 @@ export const uploadFile = async(path:string,dir='/') =>{
       public_id,
       path:secure_url
     }
-  }catch{
+  }catch(err){
+    console.error('Cloudinary upload error',err)
     throw new CustomError(`Error uploading file.`,500)
   }
 }

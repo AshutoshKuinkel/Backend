@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+//add cover image {required} and images {optional} to the product model and then after that, make sure we use multer
+//and cloudinary to take in those images and save it both locally and to the cloud.
 
 const productSchema = new mongoose.Schema({
   name:{
@@ -16,10 +18,17 @@ const productSchema = new mongoose.Schema({
     ref:'Category',
     required:[true,'brand is required']
   },
+  coverImage:{
+    type:String,
+    require:true
+  },
   createdBy:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'User',
     required:[true,'createdBy required']
+  },
+  images:{
+    type:[String]
   },
   isFeatured:{
     type:Boolean,

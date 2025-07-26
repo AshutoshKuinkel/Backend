@@ -14,7 +14,7 @@ export const uploader = ()=>{
     destination:(req,file,cb)=>{
 
       const uploadPath = 'uploads/'
-      if(!fs.existsSync){
+      if(!fs.existsSync(uploadPath)){
         fs.mkdirSync(uploadPath,{recursive:true})
       }
 

@@ -170,4 +170,54 @@ export const removeProduct = async(req:Request,res:Response,next:NextFunction)=>
 
 //get product by category
 
+export const getProductByCategory = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const { categoryId } = req.params;
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      throw new CustomError(`Category not found`, 404);
+    }
+    const products = await Product.find({ category: categoryId });
+
+    if (!products || products.length === 0) {
+      throw new CustomError(`No products found for this category`, 404);
+    }
+    
+    res.status(200).json({
+      message: `Products from category ${categoryId} fetched successfully`,
+      status: "success",
+      success: true,
+      data: products,
+    });
+  }catch(err){
+    next(err)
+  }
+}
+
 //get product by brand
+export const getProductByBrand = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const { brandId } = req.params;
+
+    const brand = await Brand.findById(brandId);
+     if (!brand) {
+      throw new CustomError(`Brand not found`, 404);
+    }
+
+    const products = await Product.find({ brand: brandId });
+
+    if (!products || products.length === 0) {
+      throw new CustomError(`No products found for this brand`, 404);
+    }
+    
+    res.status(200).json({
+      message: `Products from brand ${brandId} fetched successfully`,
+      status: "success",
+      success: true,
+      data: products,
+    });
+  }catch(err){
+    next(err)
+  }
+}

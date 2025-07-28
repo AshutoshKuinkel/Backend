@@ -1,10 +1,10 @@
-import { uploadFile } from './../utils/cloudinary-service.utils';
+import { deleteFiles, uploadFile } from './../utils/cloudinary-service.utils';
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../middlewares/error-handler.middleware";
 import { Product } from "../models/product.model";
 import { Brand } from "../models/brand.model";
 import { Category } from "../models/category.model";
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const folder_name = '/products'
 //* Product registration
@@ -12,13 +12,14 @@ const folder_name = '/products'
 export const registerProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {name,brand,category,isFeatured,stock,price,description,size} = req.body;
-    const createdBy = req.user._id
+    
     
       const files = req.files as {
       coverImage?: Express.Multer.File[];
       images?: Express.Multer.File[];
     };
 
+    const createdBy = req.user._id
     const coverImage = files?.coverImage?.[0];
     const images = files?.images || [];   
 
@@ -50,14 +51,17 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
     
     const { path: coverPath, public_id: coverPublicId } = await uploadFile(
       coverImage.path,
-      "/uploads"
+      `/${folder_name}`
     );
-    product.coverImage = coverPath;
+    product.coverImage = {
+      path:coverPath,
+      public_id: coverPublicId
+    }
 
     
     if (images.length > 0) {
       const uploadedImages = await Promise.all(
-        images.map((img) => uploadFile(img.path, "/uploads"))
+        images.map((img) => uploadFile(img.path, `/${folder_name}`))
       );
       product.images = uploadedImages.map((img) => img.path);
     }
@@ -130,13 +134,79 @@ export const getProductById = async(req:Request,res:Response,next:NextFunction)=
 export const updateProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const id = req.params.id
-    const {name,brand,category,createdBy,isFeatured,stock,price,description,size} = req.body
+    const {name,brand,category,isFeatured,stock,price,description,size,deletedImage} = req.body
+    const createdBy = req.user._id
+
+    const { cover_image, images } = req.files as {
+    [fieldname: string]: Express.Multer.File[];
+  };
+
+  let deletedImages: string[] = [];
+  if (deletedImage) {
+    deletedImages = JSON.parse(deletedImage);
+  }
 
      if (!name||!brand||!category||!price) {
       throw new CustomError("Please fill out at least the name,brand,category and price!", 400);
     }
 
     const product = await Product.findByIdAndUpdate(id,{name,brand,category,createdBy,isFeatured,stock,price,description,size},{new:true,reValidate:true})
+    if(!product){
+      throw new CustomError(`Product not found`,400)
+    }
+
+    if (brand) {
+      const brandToUpdate = await Brand.findById(brand);
+      if (!brandToUpdate) {
+        throw new CustomError("Brand not found", 400);
+    }
+      product.brand = brandToUpdate._id;
+  }
+
+    if (category) {
+      const categoryToUpdate = await Category.findById(category);
+      if (!categoryToUpdate) {
+        throw new CustomError("Category not found", 400);
+      }
+      product.category = categoryToUpdate._id;
+  }
+    if (cover_image) {
+      const { path, public_id } = await uploadFile(
+        cover_image[0].path,
+        folder_name
+      );
+    if (product.coverImage) {
+      await deleteFiles([product.coverImage.public_id]);
+    }
+    product.coverImage = {
+      path,
+      public_id,
+    };
+  }
+
+  // ! id old images are deleted
+  if (
+    Array.isArray(deletedImages) &&
+    deletedImages.length > 0
+  ) {
+    await deleteFiles(deletedImages);
+    const filteredImages =
+      product.images.length > 0
+        ? product.images.filter(
+            (image) => !deletedImages.includes(image)
+          )
+        : [];
+    product.set("images", filteredImages);
+  }
+
+  // ! if new images uploaded
+
+  if (images && images.length > 0) {
+    const newImages = await Promise.all(
+      images.map(async (image) => await uploadFile(image.path, folder_name))
+    );
+    product.set("images", [...product.images, ...newImages]);
+  }
 
     res.status(200).json({
       message: "Product successfully updated",
@@ -172,20 +242,20 @@ export const removeProduct = async(req:Request,res:Response,next:NextFunction)=>
 
 export const getProductByCategory = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const { categoryId } = req.params;
+    const { id } = req.params;
 
-    const category = await Category.findById(categoryId);
+    const category = await Category.findById(id);
     if (!category) {
       throw new CustomError(`Category not found`, 404);
     }
-    const products = await Product.find({ category: categoryId });
+    const products = await Product.find({ category: id });
 
     if (!products || products.length === 0) {
       throw new CustomError(`No products found for this category`, 404);
     }
     
     res.status(200).json({
-      message: `Products from category ${categoryId} fetched successfully`,
+      message: `Products from category fetched successfully`,
       status: "success",
       success: true,
       data: products,
@@ -198,21 +268,23 @@ export const getProductByCategory = async(req:Request,res:Response,next:NextFunc
 //get product by brand
 export const getProductByBrand = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const { brandId } = req.params;
+    const { id } = req.params;
 
-    const brand = await Brand.findById(brandId);
+    const brand = await Brand.findById(id);
      if (!brand) {
       throw new CustomError(`Brand not found`, 404);
     }
 
-    const products = await Product.find({ brand: brandId });
+    const products = await Product.find({ brand: id });
 
     if (!products || products.length === 0) {
       throw new CustomError(`No products found for this brand`, 404);
     }
+
+    console.log("req.body.brand:", brand);
     
     res.status(200).json({
-      message: `Products from brand ${brandId} fetched successfully`,
+      message: `Products from brand fetched successfully`,
       status: "success",
       success: true,
       data: products,

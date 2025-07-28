@@ -19,8 +19,8 @@ const productSchema = new mongoose.Schema({
     required:[true,'brand is required']
   },
   coverImage:{
-    type:String,
-    require:true
+    path:{type:String, required:true},
+    public_id:{type:String,required:true}
   },
   createdBy:{
     type:mongoose.Schema.Types.ObjectId,

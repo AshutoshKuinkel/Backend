@@ -14,7 +14,7 @@ router.post(`/register`,authenticate(allAdmins),upload.single('logo'),registerBr
 router.get(`/`,getAllBrands)
 router.delete('/remove/:id',authenticate(allAdmins),removeBrand)
 router.get('/:id',getBrandById)
-router.put(`/update/:id`,authenticate(allAdmins),updateBrand)
+router.put(`/update/:id`,authenticate(allAdmins),upload.single('logo'),updateBrand)
 
 
 export default router

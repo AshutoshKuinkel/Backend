@@ -7,7 +7,7 @@ import { uploader } from "../middlewares/uploader.middleware";
 const router = express.Router()
 const upload = uploader()
 
-router.post(`/register`,authenticate(allAdmins),upload.fields([{name: "coverImage"}, {name: "images", maxCount: 5}]),registerProduct)
+router.post(`/register`,authenticate(allAdmins),upload.fields([{name: "coverImage",maxCount:1}, {name: "images", maxCount: 5}]),registerProduct)
 router.get(`/`,getAllProduct)
 router.delete('/remove/:id',authenticate(allAdmins), removeProduct)
 router.get('/:id',getProductById)

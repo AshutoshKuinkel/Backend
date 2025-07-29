@@ -4,7 +4,8 @@ import CustomError from "../middlewares/error-handler.middleware";
 import { Product } from "../models/product.model";
 import { Brand } from "../models/brand.model";
 import { Category } from "../models/category.model";
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
+
 
 const folder_name = '/products'
 //* Product registration
@@ -98,7 +99,7 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
 
 export const getAllProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const product = await Product.find()
+    const product = await Product.find({}).populate('brand').populate('category')
 
     res.status(200).json({
       message: "Products fetched",
@@ -116,7 +117,11 @@ export const getAllProduct = async(req:Request,res:Response,next:NextFunction)=>
 export const getProductById = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {id} = req.params
-    const product = await Product.findById(id)
+    const product = await Product.findById(id).populate('brand').populate('category').populate('createdBy')
+
+    if(!product){
+      throw new CustomError(`Product not found.`,404)
+    }
 
     res.status(200).json({
       message: "Product fetched successfully",
@@ -225,7 +230,21 @@ export const removeProduct = async(req:Request,res:Response,next:NextFunction)=>
   try{
     const { id } = req.params;
 
-  const product = await Product.findByIdAndDelete(id);
+  const product = await Product.findById(id);
+
+  if(!product){
+    throw new CustomError(`Product not found`,404)
+  }
+
+  if(product.images && product.images.length > 0){
+    await deleteFiles(product.images.map((img:any) => img.public_id) ?? [])
+  }
+
+  if(product.coverImage){
+    deleteFiles([product.coverImage?.public_id])
+  }
+
+  await product.deleteOne()
 
   res.status(200).json({
     message: "Product removed",
@@ -248,7 +267,7 @@ export const getProductByCategory = async(req:Request,res:Response,next:NextFunc
     if (!category) {
       throw new CustomError(`Category not found`, 404);
     }
-    const products = await Product.find({ category: id });
+    const products = await Product.find({ category: id }).populate('brand').populate('category').populate('createdBy')
 
     if (!products || products.length === 0) {
       throw new CustomError(`No products found for this category`, 404);
@@ -275,7 +294,7 @@ export const getProductByBrand = async(req:Request,res:Response,next:NextFunctio
       throw new CustomError(`Brand not found`, 404);
     }
 
-    const products = await Product.find({ brand: id });
+    const products = await Product.find({ brand: id }).populate('brand').populate('category').populate('createdBy')
 
     if (!products || products.length === 0) {
       throw new CustomError(`No products found for this brand`, 404);
@@ -285,6 +304,27 @@ export const getProductByBrand = async(req:Request,res:Response,next:NextFunctio
     
     res.status(200).json({
       message: `Products from brand fetched successfully`,
+      status: "success",
+      success: true,
+      data: products,
+    });
+  }catch(err){
+    next(err)
+  }
+}
+
+//get featured products
+export const getFeaturedProducts = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+
+    const products = await Product.find({ isFeatured:true}).populate('brand').populate('category').populate('createdBy')
+
+    if (!products || products.length === 0) {
+      throw new CustomError(`No featured products`, 404);
+    }
+    
+    res.status(200).json({
+      message: `Featured products fetched successfully`,
       status: "success",
       success: true,
       data: products,

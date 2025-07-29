@@ -1,4 +1,4 @@
-import { registerProduct,getProductById,getAllProduct,updateProduct, removeProduct, getProductByBrand,getProductByCategory } from "../controllers/product.controller";
+import { registerProduct,getProductById,getAllProduct,updateProduct, removeProduct, getProductByBrand,getProductByCategory, getFeaturedProducts } from "../controllers/product.controller";
 import express from "express";
 import { allAdmins } from "../types/global.types";
 import { authenticate } from "../middlewares/auth.middleware";
@@ -14,5 +14,12 @@ router.get('/:id',getProductById)
 router.put(`/update/:id`,authenticate(allAdmins),updateProduct)
 router.get('/getByBrand/:id',getProductByBrand)
 router.get('/getByCategory/:id',getProductByCategory)
+router.get('/featured',getFeaturedProducts)
 
 export default router
+
+//cart
+
+//wishlist //try this one before coming in tomorrow {30/7/25}
+
+//order

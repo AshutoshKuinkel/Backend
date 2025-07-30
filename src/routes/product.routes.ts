@@ -9,17 +9,18 @@ const upload = uploader()
 
 router.post(`/register`,authenticate(allAdmins),upload.fields([{name: "coverImage",maxCount:1}, {name: "images", maxCount: 5}]),registerProduct)
 router.get(`/`,getAllProduct)
+router.get('/featured',getFeaturedProducts)
 router.delete('/remove/:id',authenticate(allAdmins), removeProduct)
 router.get('/:id',getProductById)
 router.put(`/update/:id`,authenticate(allAdmins),updateProduct)
 router.get('/getByBrand/:id',getProductByBrand)
 router.get('/getByCategory/:id',getProductByCategory)
-router.get('/featured',getFeaturedProducts)
+
 
 export default router
 
 //cart
 
-//wishlist //try this one before coming in tomorrow {30/7/25}
+
 
 //order

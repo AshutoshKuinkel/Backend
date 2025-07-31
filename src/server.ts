@@ -12,6 +12,7 @@ import userRoutes from './routes/user.routes'
 import brandRoutes from './routes/brand.routes'
 import categoryRoutes from './routes/category.routes'
 import productRoutes from './routes/product.routes'
+import WishListRoutes  from './routes/wishlist.routes' ;
 
 dotenv.config();
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/brand', brandRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/product',productRoutes)
+app.use('/api/wishList',WishListRoutes)
 
 
 app.all('/{*all}',(req: Request, res: Response) => {

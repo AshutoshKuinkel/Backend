@@ -96,3 +96,19 @@ export const checkIfProductInWishlist = async(req:Request,res:Response,next:Next
     next(err)
   }
 }
+
+export const clearWishlist = async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const userId = req.user._id;
+
+    await Wishlist.deleteMany({ user: userId });
+
+    res.status(200).json({
+      message: "Wishlist cleared successfully",
+      status: "success",
+      success: true,
+    });
+  }catch(err){
+    next(err)
+  }
+}

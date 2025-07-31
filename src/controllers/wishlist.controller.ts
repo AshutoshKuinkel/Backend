@@ -59,6 +59,10 @@ export const getAllWishlistItems = async(req:Request,res:Response,next:NextFunct
 
     const wishlistItems = await Wishlist.find({ user: userId }).populate("product");
 
+    if(!wishlistItems){
+      throw new CustomError(`No products in wishlist yet.`,400)
+    }
+
     res.status(200).json({
       message: "Wishlist items retrieved successfully",
       status: "success",

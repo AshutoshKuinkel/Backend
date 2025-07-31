@@ -25,9 +25,4 @@ description:{
   },
 })
 
-<<<<<<< HEAD
-//exporting
 export const Brand = mongoose.model("Brand",brandSchema)
-=======
-export const Brand = mongoose.model("Brand",brandSchema)
->>>>>>> master

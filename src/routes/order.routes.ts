@@ -12,6 +12,6 @@ router.post("/createOrder",authenticate(onlyUser),  createOrder);
 router.get("/allorders",authenticate(allAdmins),  getAllOrdersAdmin);
 router.get("/myorders",authenticate(onlyUser),  getAllOrdersUser);
 router.put("/updateOrder/:id",authenticate(allAdmins), updateOrderStatus);
-router.delete("/cancelOrder/:id",authenticate(onlyUser), cancelOrder);
+router.put("/cancelOrder/:id",authenticate(onlyUser), cancelOrder);
 
 export default router;

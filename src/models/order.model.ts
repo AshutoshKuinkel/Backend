@@ -47,7 +47,7 @@ const orderSchema = new mongoose.Schema({
     street:{
       type:String,
       trim:true,
-      required:[true,`Please enter suburb`]
+      required:[true,`Please enter street`]
     },
   },
 

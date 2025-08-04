@@ -3,13 +3,15 @@ import {Request,Response,NextFunction} from "express";
 import CustomError from "../middlewares/error-handler.middleware";
 import { Product } from "../models/product.model";
 import { orderStatus } from "../types/enum.types";
+import { Cart } from "../models/cart.model";
 
 
 //create an order {preparding order with price}
 export const createOrder = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {items,shippingAddress} = req.body
-    const user = req.params._id
+    console.log(req.body);
+    const user = req.user._id
 
 
     if(!items){
@@ -59,6 +61,8 @@ export const createOrder = async(req:Request,res:Response,next:NextFunction)=>{
     //placing order
     const newOrder = await Order.create({items:filteredOrderItems,totalAmount,shippingAddress:address,user})
 
+    //deleting the item of the user cart, after order has been placed:
+    await Cart.findOneAndDelete({user})
 
     res.status(201).json({
       message:`Order successfully placed`,

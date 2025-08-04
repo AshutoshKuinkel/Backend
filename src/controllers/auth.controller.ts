@@ -6,6 +6,7 @@ import { compare } from 'bcryptjs';
 import { generateToken } from '../utils/jwt.utils';
 import { IJWTPayload } from '../types/global.types';
 import dotenv from "dotenv"
+import { sendEmail } from '../utils/nodemailer.utils';
 dotenv.config()
 
 
@@ -75,6 +76,13 @@ export const login = async(req:Request,res:Response,next:NextFunction)=>{
     const access_token = generateToken(payload)
 
     const {password:pass,...loggedInUser} = user._doc
+
+    //add this to order controller:
+    // await sendEmail({
+    //   html:'<h1>Login Success</h1>',
+    //   subject:'Login status',
+    //   to:'eresdfdsdsf@gmail.com'
+    // })
 
     res.cookie('access_token',access_token,{
       secure:process.env.NODE_ENV === 'development' ? false:true,

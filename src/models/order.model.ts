@@ -4,14 +4,14 @@ import { orderStatus, paymentMethod } from "../types/enum.types";
 const orderSchema = new mongoose.Schema({
   user:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'user',
+    ref:'User',
     required:[true,`user is required`]
   },
 
   items:[{
     product:{
       type:mongoose.Schema.Types.ObjectId,
-      ref:`product`,
+      ref:'Product',
       required:[true,`Product is required.`],
     },
     quantity:{

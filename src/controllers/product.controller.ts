@@ -99,13 +99,40 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
 
 export const getAllProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const product = await Product.find({}).populate('brand').populate('category')
+    const {currentPage,perPage} = req.query
+    let filter = {}
+    
+    const page = Number(currentPage) || 1
+    const limit = Number(perPage) || 10
+    const skip = (page -1) * limit
+
+    const product = await Product.find(filter)
+    .limit(limit)
+    .skip(skip)
+    .populate('brand')
+    .populate('category')
+    .populate("createdBy")
+
+    const total = await Product.countDocuments(filter)
+    const totalPages = Math.ceil(total/limit)
+    const nextPage = totalPages > page ? page + 1 : null
+    const prevPage = 1 > page ? page - 1 : null
+    const hasNextPage = totalPages > page ? true : false
+    const hasPrevPage = 1 > page ? true : false
 
     res.status(200).json({
       message: "Products fetched",
       status: "success",
       success: true,
       data: product,
+      pagination:{
+        total,
+        totalPages,
+        nextPage,
+        prevPage,
+        hasNextPage,
+        hasPrevPage
+      }
   })
   }catch(err){
     next(err)

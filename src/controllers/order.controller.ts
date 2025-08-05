@@ -1,11 +1,12 @@
 import { Order } from "../models/order.model";
 import {Request,Response,NextFunction} from "express";
 import CustomError from "../middlewares/error-handler.middleware";
-import { Product } from "../models/product.model";
+import  {Product}  from "../models/product.model";
 import { orderStatus } from "../types/enum.types";
 import { Cart } from "../models/cart.model";
 import { sendEmail } from "../utils/nodemailer.utils";
 import User from "../models/user.model";
+import { generate_order_confirmation_email } from "../utils/email.utils";
 
 
 
@@ -65,15 +66,13 @@ export const createOrder = async(req:Request,res:Response,next:NextFunction)=>{
     //placing order
     const newOrder = await Order.create({items:filteredOrderItems,totalAmount,shippingAddress:address,user})
 
+    const orderPlaced = await Order.findById(newOrder._id).populate('user').populate('items.product')
+
     //sending email to the user to let them know their order has been placed:
     await sendEmail({
       to:`${userEmail}`,
       subject: `Confirmation of Order`,
-      html:`
-        <h1 style="background-color: beige; text-align: center;">Confirmation of Order!</h1>
-        <br>
-        <p>This is just a message to let you know your items are processing and will soon be on their way!</p>
-      `,
+      html: generate_order_confirmation_email(orderPlaced)
     })
 
     //deleting the item of the user cart, after order has been placed:

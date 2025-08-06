@@ -5,6 +5,7 @@ import { Product } from "../models/product.model";
 import { Brand } from "../models/brand.model";
 import { Category } from "../models/category.model";
 import mongoose from "mongoose";
+import { getPagination } from '../utils/pagination.utils';
 
 
 const folder_name = '/products'
@@ -99,12 +100,54 @@ export const registerProduct = async(req:Request,res:Response,next:NextFunction)
 
 export const getAllProduct = async(req:Request,res:Response,next:NextFunction)=>{
   try{
-    const {currentPage,perPage} = req.query
-    let filter = {}
+    const {currentPage,perPage,query,category,brand,minPrice,maxPrice} = req.query
+    let filter:Record<string,any> = {}
     
     const page = Number(currentPage) || 1
     const limit = Number(perPage) || 10
     const skip = (page -1) * limit
+
+    if(query){
+      filter.$or = [
+        {
+          name:{
+            $regex:query,
+            $options:'i'
+          }
+        },
+        {
+          description:{
+            $regex:query,
+            $options: 'i'
+          }
+        }
+      ]
+    }
+
+    //category filter
+    if(category){
+      filter.category = category
+    }
+
+    if(brand){
+      filter.brand = brand
+    }
+
+    //price range filter
+    if(maxPrice || minPrice){
+      
+      if(minPrice){
+        filter.price = {
+          $gte:minPrice
+        }
+      }
+
+      if(maxPrice){
+        filter.price = {
+          $lte:maxPrice
+        }
+      }
+    }
 
     const product = await Product.find(filter)
     .limit(limit)
